@@ -1,6 +1,6 @@
 ### README.md
 
-```markdown
+
 # Odoo Module Generator
 
 Odoo Module Generator is a Tkinter-based GUI application designed to facilitate the creation of Odoo modules. This application allows users to define module information, add models and fields, and generate the necessary files and structure for an Odoo module.
