@@ -8,7 +8,7 @@ class ModuleGeneratorApp(tk.Tk):
         self.title("Odoo Module Generator")
         self.geometry("400x400")
 
-        self.module_info = {}
+        self.module_info = {'name': '', 'version': '', 'category': '', 'summary': '', 'dependencies': ''}
         self.models = []
 
         self.main_menu = MainMenu(self)
@@ -33,6 +33,7 @@ class ModuleGeneratorApp(tk.Tk):
         self.model_info_screen.pack(fill="both", expand=True)
 
     def show_review(self):
+        self.update_review_screen()
         self.clear_screen()
         self.review_screen.pack(fill="both", expand=True)
 
@@ -55,6 +56,9 @@ class ModuleGeneratorApp(tk.Tk):
         generator.model_fields = {model['name']: {field['name']: field['type'] for field in model['fields']} for model in self.models}
         result_message = generator.generate_module()
         self.show_result(result_message)
+
+    def update_review_screen(self):
+        self.review_screen.update_widgets()
 
 
 class MainMenu(tk.Frame):
@@ -160,13 +164,13 @@ class ModelInfo(tk.Frame):
         model_name = self.model_name_entry.get()
         self.master.models.append({"name": model_name, "fields": self.fields})
         self.fields = []
-        self.model_name_entry.get_toplevel().destroy()
+        self.model_name_entry.destroy()
 
     def save_field(self):
         field_name = self.field_name_entry.get()
         field_type = self.field_type_entry.get()
         self.fields.append({"name": field_name, "type": field_type})
-        self.field_name_entry.get_toplevel().destroy()
+        self.field_name_entry.destroy()
 
 
 class Review(tk.Frame):
@@ -175,21 +179,36 @@ class Review(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        tk.Label(self, text="Review and Confirm", font=("Arial", 18)).pack(pady=10)
+        self.module_info_frame = tk.Frame(self)
+        self.module_info_frame.pack(pady=10)
         
-        tk.Label(self, text=f"Module Name: {self.master.module_info['name']}").pack(anchor="w")
-        tk.Label(self, text=f"Version: {self.master.module_info['version']}").pack(anchor="w")
-        tk.Label(self, text=f"Category: {self.master.module_info['category']}").pack(anchor="w")
-        tk.Label(self, text=f"Summary: {self.master.module_info['summary']}").pack(anchor="w")
-        tk.Label(self, text=f"Dependencies: {self.master.module_info['dependencies']}").pack(anchor="w")
+        self.models_frame = tk.Frame(self)
+        self.models_frame.pack(pady=10)
+
+        self.buttons_frame = tk.Frame(self)
+        self.buttons_frame.pack(pady=10)
+
+        tk.Button(self.buttons_frame, text="Confirm", command=self.master.generate_module).pack(side="left", padx=5)
+        tk.Button(self.buttons_frame, text="Back", command=self.master.show_model_info).pack(side="left", padx=5)
+
+    def update_widgets(self):
+        for widget in self.module_info_frame.winfo_children():
+            widget.destroy()
+        for widget in self.models_frame.winfo_children():
+            widget.destroy()
+
+        tk.Label(self.module_info_frame, text="Review and Confirm", font=("Arial", 18)).pack(pady=10)
+        
+        tk.Label(self.module_info_frame, text=f"Module Name: {self.master.module_info['name']}").pack(anchor="w")
+        tk.Label(self.module_info_frame, text=f"Version: {self.master.module_info['version']}").pack(anchor="w")
+        tk.Label(self.module_info_frame, text=f"Category: {self.master.module_info['category']}").pack(anchor="w")
+        tk.Label(self.module_info_frame, text=f"Summary: {self.master.module_info['summary']}").pack(anchor="w")
+        tk.Label(self.module_info_frame, text=f"Dependencies: {self.master.module_info['dependencies']}").pack(anchor="w")
         
         for model in self.master.models:
-            tk.Label(self, text=f"Model Name: {model['name']}").pack(anchor="w")
+            tk.Label(self.models_frame, text=f"Model Name: {model['name']}").pack(anchor="w")
             for field in model["fields"]:
-                tk.Label(self, text=f"  Field Name: {field['name']}, Field Type: {field['type']}").pack(anchor="w")
-
-        tk.Button(self, text="Confirm", command=self.master.generate_module).pack(pady=10)
-        tk.Button(self, text="Back", command=self.master.show_model_info).pack(pady=5)
+                tk.Label(self.models_frame, text=f"  Field Name: {field['name']}, Field Type: {field['type']}").pack(anchor="w")
 
 
 class Result(tk.Frame):
