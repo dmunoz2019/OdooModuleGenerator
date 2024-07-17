@@ -53,7 +53,7 @@ class ModuleGeneratorApp(tk.Tk):
     def generate_module(self):
         generator = OdooModuleGenerator(self.module_info['name'])
         generator.model_names = [model['name'] for model in self.models]
-        generator.model_fields = {model['name']: {field['name']: field['type']} for model in self.models}
+        generator.model_fields = {model['name']: {field['name']: field['type'] for field in model['fields']} for model in self.models}
         result_message = generator.generate_module()
         self.show_result(result_message)
 

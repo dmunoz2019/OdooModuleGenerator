@@ -66,7 +66,7 @@ class ModelBuilder:
         model_content = f"""
 from odoo import fields, models
 
-class {self.model_name.capitalize()}(models.TransientModel):
+class {self.model_name.capitalize().replace('.','')}(models.Model):
     \"\"\"This model is used for {self.model_name.replace('_', ' ')}.\"\"\"
     _name = '{self.model_name}'
     _description = "{self.model_name.replace('_', ' ').capitalize()}"
@@ -86,12 +86,12 @@ class ViewBuilder:
         view_content = f"""
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="{self.model_name}_view_form" model="ir.ui.view">
+    <record id="{str(self.model_name).replace('.','')}_view_form" model="ir.ui.view">
         <field name="name">{self.model_name}.view.form</field>
         <field name="model">{self.model_name}</field>
         <field name="priority" eval="8"/>
         <field name="arch" type="xml">
-            <form string="{self.model_name.replace('_', ' ').capitalize()}">
+            <form string="{self.model_name.replace('.', ' ').capitalize()}">
                 <group>
 {fields_str}                </group>
                 <footer>
@@ -113,9 +113,15 @@ class SecurityBuilder:
     def build_security_file(self):
         security_content = "id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink\n"
         for model_name in self.model_names:
-            security_content += f"access_{model_name},access_{model_name},model_{model_name},,1,1,1,1\n"
-        FileManager(self.module_name).write_file(os.path.join(self.module_name, 'security', 'ir.model.access.csv'), security_content)
-
+            sanitized_model_name = model_name.replace('.', '_')
+            security_content += (
+                f"access_{self.module_name}_{sanitized_model_name},{sanitized_model_name},"
+                f"{self.module_name}.model_{sanitized_model_name},base.group_user,1,1,1,1\n"
+            )    
+        FileManager(self.module_name).write_file(
+            os.path.join(self.module_name, 'security', 'ir.model.access.csv'),
+            security_content
+        )
 class OdooModuleGenerator:
     def __init__(self, module_name):
         self.module_name = module_name
