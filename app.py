@@ -53,7 +53,7 @@ class ModuleGeneratorApp(tk.Tk):
     def generate_module(self):
         generator = OdooModuleGenerator(self.module_info['name'])
         generator.model_names = [model['name'] for model in self.models]
-        generator.model_fields = {model['name']: {field['name']: field['type'] for field in model['fields']} for model in self.models}
+        generator.model_fields = {model['name']: {field['name']: field['type']} for model in self.models}
         result_message = generator.generate_module()
         self.show_result(result_message)
 
@@ -135,42 +135,42 @@ class ModelInfo(tk.Frame):
         frame.pack(padx=10, pady=10)
 
         tk.Label(frame, text="Model Name:").pack(anchor="w")
-        self.model_name_entry = tk.Entry(frame)
-        self.model_name_entry.pack(fill="x")
+        model_name_entry = tk.Entry(frame)
+        model_name_entry.pack(fill="x")
 
-        self.fields = []
+        fields = []
 
-        tk.Button(frame, text="Add Field", command=self.add_field_screen).pack(pady=5)
-        tk.Button(frame, text="Save Model", command=self.save_model).pack(pady=10)
+        def add_field_screen():
+            new_field_window = tk.Toplevel(new_model_window)
+            new_field_window.title("Add Field")
 
-    def add_field_screen(self):
-        new_field_window = tk.Toplevel(self)
-        new_field_window.title("Add Field")
+            frame = tk.Frame(new_field_window)
+            frame.pack(padx=10, pady=10)
 
-        frame = tk.Frame(new_field_window)
-        frame.pack(padx=10, pady=10)
+            tk.Label(frame, text="Field Name:").pack(anchor="w")
+            field_name_entry = tk.Entry(frame)
+            field_name_entry.pack(fill="x")
 
-        tk.Label(frame, text="Field Name:").pack(anchor="w")
-        self.field_name_entry = tk.Entry(frame)
-        self.field_name_entry.pack(fill="x")
+            tk.Label(frame, text="Field Type:").pack(anchor="w")
+            field_type_entry = tk.Entry(frame)
+            field_type_entry.pack(fill="x")
 
-        tk.Label(frame, text="Field Type:").pack(anchor="w")
-        self.field_type_entry = tk.Entry(frame)
-        self.field_type_entry.pack(fill="x")
+            def save_field():
+                field_name = field_name_entry.get()
+                field_type = field_type_entry.get()
+                fields.append({"name": field_name, "type": field_type})
+                new_field_window.destroy()
 
-        tk.Button(frame, text="Save Field", command=self.save_field).pack(pady=10)
+            tk.Button(frame, text="Save Field", command=save_field).pack(pady=10)
 
-    def save_model(self):
-        model_name = self.model_name_entry.get()
-        self.master.models.append({"name": model_name, "fields": self.fields})
-        self.fields = []
-        self.model_name_entry.destroy()
+        tk.Button(frame, text="Add Field", command=add_field_screen).pack(pady=5)
 
-    def save_field(self):
-        field_name = self.field_name_entry.get()
-        field_type = self.field_type_entry.get()
-        self.fields.append({"name": field_name, "type": field_type})
-        self.field_name_entry.destroy()
+        def save_model():
+            model_name = model_name_entry.get()
+            self.master.models.append({"name": model_name, "fields": fields})
+            new_model_window.destroy()
+
+        tk.Button(frame, text="Save Model", command=save_model).pack(pady=10)
 
 
 class Review(tk.Frame):
