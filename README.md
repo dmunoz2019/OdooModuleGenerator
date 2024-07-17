@@ -116,22 +116,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any questions or suggestions, please contact [dmunoz2019@gmail.com].
-```
+For any questions or suggestions, please contact [dmunozdelrio@gmail.com].
 
-### Explanation
-
-1. **Repository Link**: Updated the clone command to use your GitHub repository link.
-2. **Contact Information**: Included a generic email for contact; replace it with your actual email if necessary.
-
-### Additional Steps
-
-1. **Create `requirements.txt`**:
-   If you have dependencies, list them in a `requirements.txt` file. For example:
-   ```txt
-   pytest
-   pytest-mock
-   ```
-
-2. **Create `LICENSE` File**:
-   Add a `LICENSE` file to your repository if you haven't already, to specify the licensing terms for your project.
